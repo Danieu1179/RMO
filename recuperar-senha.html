@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar senha — RMO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://pvckhcucumsmkcfkifxc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_cXOvHP_xLoGr6oROgcOgAQ_GlfFjozQ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <style>
+    :root {
+      --purple: #5B4FD9; --purple-dark: #3B2FB5; --purple-pale: #EEEDFE;
+      --ink: #1A1535; --ink-mid: #3D3660; --ink-soft: #6B6490;
+      --bg: #F8F7FF; --card: #FFFFFF; --border: rgba(91,79,217,.13);
+      --error: #DC2626; --error-pale: #FEF2F2;
+      --success: #059669; --success-pale: #ECFDF5;
+      --font: 'Plus Jakarta Sans', Arial, sans-serif;
+      --r-md: 14px;
+    }
+    [data-theme="dark"] {
+      --ink: #EAE8FF; --ink-mid: #B8B4D8; --ink-soft: #7E7A9E;
+      --bg: #0F0D1A; --card: #1E1B33; --border: rgba(168,159,248,.14);
+      --purple-pale: rgba(91,79,217,.18);
+      --error-pale: rgba(220,38,38,.12); --success-pale: rgba(5,150,105,.12);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--ink);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px; -webkit-font-smoothing: antialiased;
+      transition: background .3s, color .3s;
+    }
+
+    .theme-btn {
+      position: fixed; top: 20px; right: 20px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--purple-pale); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--purple); transition: transform .2s; z-index: 10;
+    }
+    .theme-btn:hover { transform: rotate(20deg); }
+    .theme-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+    .icon-sun  { display: none; }
+    .icon-moon { display: block; }
+    [data-theme="dark"] .icon-sun  { display: block; }
+    [data-theme="dark"] .icon-moon { display: none; }
+
+    .box {
+      width: 100%; max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 44px 40px;
+      box-shadow: 0 8px 40px rgba(91,79,217,.1);
+      text-align: center;
+    }
+    [data-theme="dark"] .box { box-shadow: 0 8px 40px rgba(0,0,0,.4); }
+
+    .box-logo {
+      display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none; margin-bottom: 28px;
+    }
+    .box-logo-mark {
+      width: 34px; height: 34px; background: var(--purple);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    }
+    .box-logo-mark svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+    .box-logo-name { font-size: 19px; font-weight: 800; color: var(--purple); letter-spacing: -.4px; }
+
+    /* icon state */
+    .icon-wrap {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--purple-pale);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 22px;
+      transition: background .3s;
+    }
+    .icon-wrap svg { width: 28px; height: 28px; fill: none; stroke: var(--purple); stroke-width: 1.8; stroke-linecap: round; }
+    .icon-wrap.success { background: var(--success-pale); }
+    .icon-wrap.success svg { stroke: var(--success); }
+
+    .box-title { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -.5px; margin-bottom: 8px; }
+    .box-desc  { font-size: 14px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 28px; }
+
+    .field { margin-bottom: 20px; text-align: left; }
+    label  { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; letter-spacing: .02em; }
+    .input-wrap { position: relative; }
+    .input-wrap .inp-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--ink-soft); }
+    .input-wrap .inp-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+    input[type="email"] {
+      width: 100%; height: 44px;
+      background: var(--card); color: var(--ink);
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      padding: 0 14px 0 38px;
+      font-family: var(--font); font-size: 14px; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    input[type="email"]:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(91,79,217,.12); }
+    input.error-field { border-color: var(--error) !important; }
+
+    .field-error { font-size: 11.5px; color: var(--error); margin-top: 5px; display: none; align-items: center; gap: 4px; }
+    .field-error.show { display: flex; }
+    .field-error svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; flex-shrink: 0; }
+
+    .alert { display: none; padding: 11px 14px; border-radius: var(--r-md); font-size: 13px; line-height: 1.5; margin-bottom: 16px; text-align: left; align-items: flex-start; gap: 8px; }
+    .alert.show { display: flex; }
+    .alert-error { background: var(--error-pale); color: var(--error); border: 1px solid rgba(220,38,38,.18); }
+    .alert svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; margin-top: 1px; }
+
+    .btn-submit {
+      width: 100%; height: 46px;
+      background: var(--purple); color: #fff; border: none;
+      border-radius: var(--r-md); font-family: var(--font);
+      font-size: 14.5px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .18s, transform .15s, box-shadow .18s;
+      box-shadow: 0 4px 16px rgba(91,79,217,.3);
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--purple-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(91,79,217,.4); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-submit svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-size: 13.5px; color: var(--ink-soft); text-decoration: none; transition: color .15s; }
+    .back-link:hover { color: var(--purple); }
+    .back-link svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* success state */
+    .success-state { display: none; }
+    .success-state.show { display: block; }
+    .form-state.hide { display: none; }
+  </style>
+</head>
+<body>
+
+  <button class="theme-btn" id="themeToggle" aria-label="Alternar tema">
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  </button>
+
+  <div class="box">
+    <a href="index.html" class="box-logo">
+      <div class="box-logo-mark">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+      </div>
+      <span class="box-logo-name">RMO.</span>
+    </a>
+
+    <!-- ── Form state ── -->
+    <div id="formState" class="form-state">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h1 class="box-title">Recuperar senha</h1>
+      <p class="box-desc">Informe o e-mail da sua conta e enviaremos um link para você criar uma nova senha.</p>
+
+      <div class="alert alert-error" id="alertError" role="alert">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="alertErrorMsg"></span>
+      </div>
+
+      <form id="resetForm" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <div class="input-wrap">
+            <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" />
+          </div>
+          <div class="field-error" id="err-email">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Informe um e-mail válido</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText">Enviar link de recuperação</span>
+          <div class="spinner" id="spinner"></div>
+          <svg id="btnArrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <a href="login.html" class="back-link">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Voltar para o login
+      </a>
+    </div>
+
+    <!-- ── Success state ── -->
+    <div id="successState" class="success-state">
+      <div class="icon-wrap success">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h1 class="box-title">Link enviado!</h1>
+      <p class="box-desc">Enviamos um e-mail para <strong id="sentEmail" style="color:var(--ink);font-weight:600"></strong> com o link para redefinir sua senha.<br><br>Não recebeu? Verifique sua caixa de spam.</p>
+
+      <a href="login.html" class="back-link" style="justify-content:center">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Voltar para o login
+      </a>
+    </div>
+  </div>
+
+<script>
+  const html = document.documentElement;
+  const saved = localStorage.getItem('rmo-theme');
+  if (saved) html.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('rmo-theme', next);
+  });
+
+  function setLoading(on) {
+    document.getElementById('submitBtn').disabled = on;
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btnArrow').style.display = on ? 'none' : 'block';
+    document.getElementById('btnText').textContent = on ? 'Enviando...' : 'Enviar link de recuperação';
+  }
+
+  document.getElementById('resetForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+
+    document.getElementById('err-email').classList.remove('show');
+    document.getElementById('email').classList.remove('error-field');
+    document.getElementById('alertError').classList.remove('show');
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('err-email').classList.add('show');
+      document.getElementById('email').classList.add('error-field');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/nova-senha.html'
+      });
+      if (error) {
+        document.getElementById('alertErrorMsg').textContent = error.message;
+        document.getElementById('alertError').classList.add('show');
+      } else {
+        document.getElementById('sentEmail').textContent = email;
+        document.getElementById('formState').classList.add('hide');
+        document.getElementById('successState').classList.add('show');
+      }
+    } catch (err) {
+      document.getElementById('alertErrorMsg').textContent = 'Erro inesperado. Tente novamente.';
+      document.getElementById('alertError').classList.add('show');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+</body>
+</html>

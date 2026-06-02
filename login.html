@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — RMO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://pvckhcucumsmkcfkifxc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_cXOvHP_xLoGr6oROgcOgAQ_GlfFjozQ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <style>
+    :root {
+      --purple:      #5B4FD9;
+      --purple-dark: #3B2FB5;
+      --purple-pale: #EEEDFE;
+      --teal:        #2EC4A9;
+      --ink:         #1A1535;
+      --ink-mid:     #3D3660;
+      --ink-soft:    #6B6490;
+      --bg:          #F8F7FF;
+      --card:        #FFFFFF;
+      --border:      rgba(91,79,217,.13);
+      --error:       #DC2626;
+      --error-pale:  #FEF2F2;
+      --success:     #059669;
+      --success-pale:#ECFDF5;
+      --font: 'Plus Jakarta Sans', Arial, sans-serif;
+      --r-sm: 8px; --r-md: 14px; --r-lg: 22px;
+    }
+    [data-theme="dark"] {
+      --ink:        #EAE8FF; --ink-mid: #B8B4D8; --ink-soft: #7E7A9E;
+      --bg:         #0F0D1A; --card: #1E1B33; --border: rgba(168,159,248,.14);
+      --purple-pale:rgba(91,79,217,.18);
+      --error-pale: rgba(220,38,38,.12); --success-pale:rgba(5,150,105,.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--ink);
+      min-height: 100vh; display: flex; flex-direction: column;
+      -webkit-font-smoothing: antialiased; transition: background .3s, color .3s;
+    }
+
+    .page {
+      flex: 1; display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── left panel ── */
+    .left-panel {
+      background: var(--purple);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 60px 56px;
+      position: relative; overflow: hidden;
+    }
+    .left-panel::before {
+      content: ''; position: absolute; top: -140px; right: -140px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(255,255,255,.07); pointer-events: none;
+    }
+    .left-panel::after {
+      content: ''; position: absolute; bottom: -100px; left: -60px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,.05); pointer-events: none;
+    }
+
+    .lp-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; margin-bottom: 56px; position: relative; z-index: 1;
+    }
+    .lp-logo-mark {
+      width: 36px; height: 36px; background: rgba(255,255,255,.2);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    }
+    .lp-logo-mark svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+    .lp-logo-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -.4px; }
+
+    .lp-heading {
+      font-size: clamp(28px, 3vw, 38px); font-weight: 800;
+      color: #fff; line-height: 1.1; letter-spacing: -1px;
+      margin-bottom: 16px; position: relative; z-index: 1;
+    }
+    .lp-heading span { color: rgba(255,255,255,.65); }
+    .lp-desc {
+      font-size: 15px; font-weight: 400; line-height: 1.7;
+      color: rgba(255,255,255,.7); max-width: 320px;
+      margin-bottom: 44px; position: relative; z-index: 1;
+    }
+
+    /* quote / depoimento */
+    .lp-quote {
+      background: rgba(255,255,255,.1); border-radius: 16px;
+      padding: 22px 24px; position: relative; z-index: 1;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .lp-quote-text {
+      font-size: 14px; line-height: 1.7; color: rgba(255,255,255,.85);
+      font-style: italic; margin-bottom: 14px;
+    }
+    .lp-quote-author { display: flex; align-items: center; gap: 10px; }
+    .lp-quote-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
+    .lp-quote-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .lp-quote-role { font-size: 11.5px; color: rgba(255,255,255,.6); margin-top: 1px; }
+
+    /* ── right panel ── */
+    .right-panel {
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      padding: 60px 40px; position: relative;
+    }
+
+    .theme-btn {
+      position: absolute; top: 24px; right: 24px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--purple-pale); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--purple); transition: transform .2s;
+    }
+    .theme-btn:hover { transform: rotate(20deg); }
+    .theme-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+    .icon-sun  { display: none; }
+    .icon-moon { display: block; }
+    [data-theme="dark"] .icon-sun  { display: block; }
+    [data-theme="dark"] .icon-moon { display: none; }
+
+    .form-card { width: 100%; max-width: 400px; }
+
+    .form-title { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -.6px; margin-bottom: 6px; }
+    .form-sub   { font-size: 14px; color: var(--ink-soft); margin-bottom: 32px; }
+    .form-sub a { color: var(--purple); text-decoration: none; font-weight: 600; }
+    .form-sub a:hover { text-decoration: underline; }
+
+    .field { margin-bottom: 18px; }
+    label {
+      display: block; font-size: 12.5px; font-weight: 600;
+      color: var(--ink-mid); margin-bottom: 6px; letter-spacing: .02em;
+    }
+
+    .input-wrap { position: relative; }
+    .input-wrap .inp-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; color: var(--ink-soft);
+    }
+    .input-wrap .inp-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+    .input-wrap .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--ink-soft);
+      padding: 4px; display: flex; align-items: center; transition: color .15s;
+    }
+    .input-wrap .eye-btn:hover { color: var(--purple); }
+    .input-wrap .eye-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%; height: 44px;
+      background: var(--card); color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md); padding: 0 40px 0 38px;
+      font-family: var(--font); font-size: 14px;
+      outline: none; transition: border-color .18s, box-shadow .18s;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(91,79,217,.12);
+    }
+    input.error-field { border-color: var(--error) !important; }
+
+    .field-error {
+      font-size: 11.5px; color: var(--error); margin-top: 5px;
+      display: none; align-items: center; gap: 4px;
+    }
+    .field-error.show { display: flex; }
+    .field-error svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; flex-shrink: 0; }
+
+    /* remember + forgot */
+    .field-extras {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .remember {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--ink-soft); cursor: pointer;
+    }
+    .remember input[type="checkbox"] {
+      width: 15px; height: 15px; accent-color: var(--purple); cursor: pointer;
+    }
+    .forgot-link {
+      font-size: 13px; color: var(--purple); text-decoration: none; font-weight: 500;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .alert {
+      display: none; padding: 12px 14px; border-radius: var(--r-md);
+      font-size: 13px; line-height: 1.5; margin-bottom: 18px;
+      align-items: flex-start; gap: 8px;
+    }
+    .alert.show { display: flex; }
+    .alert-error   { background: var(--error-pale); color: var(--error); border: 1px solid rgba(220,38,38,.18); }
+    .alert-success { background: var(--success-pale); color: var(--success); border: 1px solid rgba(5,150,105,.18); }
+    .alert svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; margin-top: 1px; }
+
+    .btn-submit {
+      width: 100%; height: 46px;
+      background: var(--purple); color: #fff; border: none;
+      border-radius: var(--r-md); font-family: var(--font);
+      font-size: 14.5px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .18s, transform .15s, box-shadow .18s;
+      box-shadow: 0 4px 16px rgba(91,79,217,.3);
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--purple-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(91,79,217,.4); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-submit svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .6s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .or-divider {
+      display: flex; align-items: center; gap: 12px; margin: 20px 0;
+      font-size: 12px; color: var(--ink-soft);
+    }
+    .or-divider::before, .or-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .btn-google {
+      width: 100%; height: 44px;
+      background: var(--card); color: var(--ink-mid); border: 1.5px solid var(--border);
+      border-radius: var(--r-md); font-family: var(--font);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background .18s, border-color .18s;
+    }
+    .btn-google:hover { background: var(--purple-pale); border-color: rgba(91,79,217,.3); }
+    .btn-google svg { width: 18px; height: 18px; }
+
+    @media (max-width: 860px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 60px 24px 40px; justify-content: flex-start; padding-top: 80px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ LEFT PANEL ══ -->
+  <div class="left-panel">
+    <a href="index.html" class="lp-logo">
+      <div class="lp-logo-mark">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+      </div>
+      <span class="lp-logo-name">RMO.</span>
+    </a>
+
+    <h1 class="lp-heading">Que bom<br><span>te ver de volta.</span></h1>
+    <p class="lp-desc">Continue sua jornada vocacional do ponto onde parou.</p>
+
+    <div class="lp-quote">
+      <p class="lp-quote-text">"O RMO me ajudou a enxergar que minha paixão por resolver problemas era exatamente o que eu precisava para escolher Engenharia."</p>
+      <div class="lp-quote-author">
+        <div class="lp-quote-avatar">AM</div>
+        <div>
+          <div class="lp-quote-name">Ana Martins</div>
+          <div class="lp-quote-role">17 anos — Ensino médio, SP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div class="right-panel">
+
+    <button class="theme-btn" id="themeToggle" aria-label="Alternar tema">
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+
+    <div class="form-card">
+      <h2 class="form-title">Entrar</h2>
+      <p class="form-sub">Não tem conta? <a href="cadastro.html">Criar conta grátis</a></p>
+
+      <div class="alert alert-error" id="alertError" role="alert">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="alertErrorMsg"></span>
+      </div>
+      <div class="alert alert-success" id="alertSuccess" role="alert">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="alertSuccessMsg"></span>
+      </div>
+
+      <form id="loginForm" novalidate autocomplete="on">
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <div class="input-wrap">
+            <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" />
+          </div>
+          <div class="field-error" id="err-email">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Informe um e-mail válido</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Senha</label>
+          <div class="input-wrap">
+            <span class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input type="password" id="password" name="password" placeholder="Sua senha" autocomplete="current-password" />
+            <button type="button" class="eye-btn" id="togglePwd" aria-label="Mostrar senha">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="field-error" id="err-password">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Informe sua senha</span>
+          </div>
+        </div>
+
+        <div class="field-extras">
+          <label class="remember">
+            <input type="checkbox" id="remember" name="remember" /> Lembrar de mim
+          </label>
+          <a href="recuperar-senha.html" class="forgot-link">Esqueci a senha</a>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText">Entrar</span>
+          <div class="spinner" id="spinner"></div>
+          <svg id="btnArrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <div class="or-divider">ou</div>
+
+      <button class="btn-google" id="googleBtn" type="button">
+        <svg viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continuar com Google
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const html = document.documentElement;
+  const saved = localStorage.getItem('rmo-theme');
+  if (saved) html.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('rmo-theme', next);
+  });
+
+  document.getElementById('togglePwd').addEventListener('click', () => {
+    const p = document.getElementById('password');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  });
+
+  function setLoading(on) {
+    document.getElementById('submitBtn').disabled = on;
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btnArrow').style.display = on ? 'none' : 'block';
+    document.getElementById('btnText').textContent = on ? 'Entrando...' : 'Entrar';
+  }
+
+  function showAlert(type, msg) {
+    document.getElementById('alertError').classList.remove('show');
+    document.getElementById('alertSuccess').classList.remove('show');
+    if (type === 'error') {
+      document.getElementById('alertErrorMsg').textContent = msg;
+      document.getElementById('alertError').classList.add('show');
+    } else {
+      document.getElementById('alertSuccessMsg').textContent = msg;
+      document.getElementById('alertSuccess').classList.add('show');
+    }
+  }
+
+  /* Redireciona se já estiver logado */
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = 'perfil.html';
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    let valid = true;
+
+    ['err-email','err-password'].forEach(id => {
+      document.getElementById(id).classList.remove('show');
+      const inp = document.getElementById(id.replace('err-',''));
+      if (inp) inp.classList.remove('error-field');
+    });
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('err-email').classList.add('show');
+      document.getElementById('email').classList.add('error-field');
+      valid = false;
+    }
+    if (!password) {
+      document.getElementById('err-password').classList.add('show');
+      document.getElementById('password').classList.add('error-field');
+      valid = false;
+    }
+    if (!valid) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        const msgs = {
+          'Invalid login credentials': 'E-mail ou senha incorretos. Verifique e tente novamente.',
+          'Email not confirmed': 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.',
+        };
+        showAlert('error', msgs[error.message] || error.message);
+      } else {
+        showAlert('success', 'Login realizado! Redirecionando...');
+        setTimeout(() => { window.location.href = 'perfil.html'; }, 1200);
+      }
+    } catch (err) {
+      showAlert('error', 'Erro inesperado. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  document.getElementById('googleBtn').addEventListener('click', async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/perfil.html' }
+    });
+    if (error) showAlert('error', 'Erro ao conectar com Google: ' + error.message);
+  });
+</script>
+</body>
+</html>
